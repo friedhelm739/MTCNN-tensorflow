@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+@author: friedhelm
+
+"""
 import tensorflow as tf 
 import cv2
 import random
@@ -42,7 +47,7 @@ def main():
 
 if __name__=="__main__":
     
-    img_size=48
+    img_size=12
     #change img_size to P=12 R=24 O=48 net
     terms=['neg_%d'%(img_size),'pos_%d'%(img_size),'par_%d'%(img_size),'land_%d'%(img_size)]
     scale=[3,1,1,2]

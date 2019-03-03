@@ -1,0 +1,6 @@
+model_checkpoint_path: "E:\\friedhelm\\object\\face_detection_MTCNN\\Onet_model\\Onet_model_100000.ckpt"
+all_model_checkpoint_paths: "E:\\friedhelm\\object\\face_detection_MTCNN\\Onet_model\\Onet_model_60000.ckpt"
+all_model_checkpoint_paths: "E:\\friedhelm\\object\\face_detection_MTCNN\\Onet_model\\Onet_model_70000.ckpt"
+all_model_checkpoint_paths: "E:\\friedhelm\\object\\face_detection_MTCNN\\Onet_model\\Onet_model_80000.ckpt"
+all_model_checkpoint_paths: "E:\\friedhelm\\object\\face_detection_MTCNN\\Onet_model\\Onet_model_90000.ckpt"
+all_model_checkpoint_paths: "E:\\friedhelm\\object\\face_detection_MTCNN\\Onet_model\\Onet_model_100000.ckpt"
