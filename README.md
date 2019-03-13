@@ -1,5 +1,7 @@
 # MTCNN-tensorflow
 
+* version 0.1稳定，version 0.2更新中；
+
 复现[Joint Face Detection and Alignment Using Multitask Cascaded Convolutional Networks](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7553523)论文，参考了众多复现代码，在此附上链接并对表示感谢~
 
 * https://github.com/kpzhang93/MTCNN_face_detection_alignment
