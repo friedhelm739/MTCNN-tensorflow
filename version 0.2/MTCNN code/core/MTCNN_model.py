@@ -5,12 +5,12 @@
 """
 import tensorflow as tf
 
-def prelu(_input):
+def prelu(inputs):
 
     with tf.variable_scope('prelu'):
-        alphas = tf.get_variable("alphas", shape=_input.get_shape()[-1], dtype=tf.float32, initializer=tf.constant_initializer(0.25))
-        pos = tf.nn.relu(_input)
-        neg = alphas * (_input-abs(_input))*0.5
+        alphas = tf.get_variable("alphas", shape=inputs.get_shape()[-1], dtype=tf.float32, initializer=tf.constant_initializer(0.25))
+        pos = tf.nn.relu(inputs)
+        neg = alphas * (inputs-abs(inputs))*0.5
     
     return pos + neg
 
@@ -19,7 +19,7 @@ def conv2d(_input,name,conv_size,conv_stride,bias_size,pad,activation='prelu'):
     
     regularizer=tf.contrib.layers.l2_regularizer(0.0005)
     with tf.variable_scope(name):
-        weight=tf.get_variable('weight',conv_size,initializer=tf.contrib.layers.xavier_initializer())
+        weight=tf.get_variable('weight',conv_size,initializer=tf.truncated_normal_initializer(stddev=0.1))
         bias=tf.get_variable('bias',bias_size,initializer=tf.constant_initializer(0.0))
         weight_loss=regularizer(weight)
         tf.add_to_collection('loss',weight_loss)

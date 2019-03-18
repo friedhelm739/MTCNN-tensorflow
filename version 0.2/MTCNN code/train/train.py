@@ -3,6 +3,9 @@
 @author: friedhelm
 
 """
+import sys
+sys.path.append("../")
+
 import tensorflow as tf
 import time
 from core.tool import read_multi_tfrecords,image_color_distort
@@ -31,13 +34,15 @@ def train(image,label,roi,landmark,model,model_name):
     with tf.name_scope('loss'):
         loss=tf.reduce_sum(loss_all)
         tf.summary.scalar('loss',loss) 
-        
+
     opt=tf.train.AdamOptimizer(learning_rate).minimize(loss)
     
     with tf.name_scope('accuracy'):
-        train_accuracy=cal_accuracy(_label,label)
+        train_accuracy,truth_accuracy,false_accuracy=cal_accuracy(_label,label)
         tf.summary.scalar('accuracy',train_accuracy) 
-
+        tf.summary.scalar('ture_accuracy',truth_accuracy) 
+        tf.summary.scalar('false_accuracy',false_accuracy) 
+        
     saver=tf.train.Saver(max_to_keep=10)
     merged=tf.summary.merge_all() 
     
@@ -51,7 +56,7 @@ def train(image,label,roi,landmark,model,model_name):
         threads = tf.train.start_queue_runners(sess=sess,coord=coord)
         image_batch,label_batch,roi_batch,landmark_batch=sess.run([images,labels,rois,landmarks])
         
-        writer_train=tf.summary.FileWriter('C:\\Users\\312\\Desktop\\',sess.graph)
+        writer_train=tf.summary.FileWriter(os.path.join(base_dir,"model/%s/"%(model_name)),sess.graph)
         try:
             
             for i in range(1,train_step):
@@ -65,10 +70,15 @@ def train(image,label,roi,landmark,model,model_name):
                 if(i%1000==0):
                     print('次数',i)    
                     print('train_accuracy',sess.run(train_accuracy,feed_dict={image:image_batch,label:label_batch,roi:roi_batch,landmark:landmark_batch}))
-                    print('loss',sess.run(loss,{image:image_batch,label:label_batch,roi:roi_batch,landmark:landmark_batch}))               
+                    print('truth_accuracy',sess.run(truth_accuracy,feed_dict={image:image_batch,label:label_batch,roi:roi_batch,landmark:landmark_batch}))
+                    print('false_accuracy',sess.run(false_accuracy,feed_dict={image:image_batch,label:label_batch,roi:roi_batch,landmark:landmark_batch}))
+                    print('loss',sess.run(loss,{image:image_batch,label:label_batch,roi:roi_batch,landmark:landmark_batch})) 
+                    print('_label_los',sess.run(_label_los,{image:image_batch,label:label_batch,roi:roi_batch,landmark:landmark_batch}))                     
+                    print('_box_los',sess.run(_box_los,{image:image_batch,label:label_batch,roi:roi_batch,landmark:landmark_batch}))                     
+                    print('_landmark_los',sess.run(_landmark_los,{image:image_batch,label:label_batch,roi:roi_batch,landmark:landmark_batch}))                     
                     print('time',time.time()-begin)
                     if(i%10000==0):
-                        saver.save(sess,"E:\\friedhelm\\object\\face_detection_MTCNN\\%s\\%s.ckpt"%(model_name,model_name),global_step=i)
+                        saver.save(sess,os.path.join(base_dir,"model/%s/%s.ckpt"%(model_name,model_name)),global_step=i)
         except  tf.errors.OutOfRangeError:
             print("finished")
         finally:
@@ -79,29 +89,31 @@ def train(image,label,roi,landmark,model,model_name):
 def main(model):
     
     with tf.name_scope('input'):
-        image=tf.placeholder(tf.float32,name='image')
-        label=tf.placeholder(tf.int32,name='label')
-        roi=tf.placeholder(tf.float32,name='roi')
-        landmark = tf.placeholder(tf.float32,name='landmark')  
+        image=tf.placeholder(tf.float32,[batch,img_size,img_size,3],name='image')
+        label=tf.placeholder(tf.int32,[batch],name='label')
+        roi=tf.placeholder(tf.float32,[batch,4],name='roi')
+        landmark = tf.placeholder(tf.float32,[batch,10],name='landmark')  
 
     train(image,label,roi,landmark,model,model_name)
 
 if __name__=='__main__':
     
-    img_size=24
+    base_dir="/home/dell/Desktop/prepared_data"
+    img_size=48
     batch=448
     batch_size=[192,64,64,128]
-    addr=["E:\\friedhelm\\object\\face_detection_MTCNN\\DATA\\%d\\neg_%d_train.tfrecords"%(img_size,img_size),
-          "E:\\friedhelm\\object\\face_detection_MTCNN\\DATA\\%d\\pos_%d_train.tfrecords"%(img_size,img_size),
-          "E:\\friedhelm\\object\\face_detection_MTCNN\\DATA\\%d\\par_%d_train.tfrecords"%(img_size,img_size),
-          "E:\\friedhelm\\object\\face_detection_MTCNN\\DATA\\%d\\land_%d_train.tfrecords"%(img_size,img_size)]  
+    
+    addr=[os.path.join(base_dir,"DATA/%d/neg_%d_train.tfrecords"%(img_size,img_size)),
+          os.path.join(base_dir,"DATA/%d/pos_%d_train.tfrecords"%(img_size,img_size)),
+          os.path.join(base_dir,"DATA/%d/par_%d_train.tfrecords"%(img_size,img_size)),
+          os.path.join(base_dir,"DATA/%d/land_%d_train.tfrecords"%(img_size,img_size))]  
 
-    model=Rnet_model
-    model_name="Rnet_model"    
+    model=Onet_model
+    model_name="Onet_model"    
     train_step=100001
     learning_rate=0.001
     
-    save_model_path="E:\\friedhelm\\object\\face_detection_MTCNN\\%s"%(model_name)
+    save_model_path=os.path.join(base_dir,"model/%s"%(model_name))
     
     if not os.path.exists(save_model_path):
         os.makedirs(save_model_path) 
@@ -115,4 +127,4 @@ if __name__=='__main__':
     begin=time.time()        
     main(model)
     
-# tensorboard --logdir=C:\\Users\\312\\Desktop\\
+# tensorboard --logdir=/home/dell/Desktop/prepared_data/model/Onet_model/

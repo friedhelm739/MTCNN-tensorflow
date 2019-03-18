@@ -3,6 +3,8 @@
 @author: friedhelm
 
 """
+import sys
+sys.path.append("../")
 
 from core.tool import IoU,flip
 import numpy as np
@@ -22,7 +24,7 @@ def main():
             img_list=[]
             mark_list=[]
             line=line.strip().split(' ')
-            img=cv2.imread(os.path.join(lfw_dir,line[0]))
+            img=cv2.imread(os.path.join(lfw_dir,line[0].replace("\\","/")))
             box=(line[1],line[2],line[3],line[4])
             box=[int(_) for _ in box]
             #format of box is [x,x+w,y,y+h]
@@ -47,7 +49,7 @@ def main():
 
             if((x1<0)|(y1<0)|(max(w,h)<40)|(min(w,h)<=5)): 
                 continue          
-            num=40
+            num=50
             while(num):
 
                 size=randint(np.floor(0.8*min(w,h)),np.ceil(1.25*max(w,h))+1)
@@ -106,12 +108,12 @@ if __name__=="__main__":
     
     begin=time.time()
     
-    base_dir="E:\\friedhelm\\object\\face_detection_MTCNN"
+    base_dir="/home/dell/Desktop/prepared_data"
     
-    lfw_dir=os.path.join(base_dir,"prepare_data")
-    pic_spilt_dir=os.path.join(base_dir,"prepare_data\\trainImageList.txt")
-    landmark_dir=os.path.join(base_dir,"DATA\\%d\\landmark"%(img_size))
-    save_dir=os.path.join(base_dir,"DATA\\%d"%(img_size))
+    lfw_dir=os.path.join(base_dir,"train")
+    pic_spilt_dir=os.path.join(base_dir,"train/trainImageList.txt")
+    landmark_dir=os.path.join(base_dir,"DATA/%d/landmark"%(img_size))
+    save_dir=os.path.join(base_dir,"DATA/%d"%(img_size))  
 
     if not os.path.exists(landmark_dir):
         os.makedirs(landmark_dir)    

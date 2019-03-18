@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-@author: friedhelm
-
-"""
 import tensorflow as tf
+import numpy as np
+import cv2
 
-filename_queue = tf.train.string_input_producer(["E:\\friedhelm\\object\\face_detection_MTCNN\\DATA\\48\\neg_48_train.tfrecords"],shuffle=True,num_epochs=1)
+
+filename_queue = tf.train.string_input_producer(["/home/dell/Desktop/prepared_data/DATA/12/par_12_train.tfrecords"],shuffle=True,num_epochs=1)
 
 reader = tf.TFRecordReader()
 _, serialized_example = reader.read(filename_queue) #返回文件名和文件
@@ -21,7 +19,7 @@ img=tf.decode_raw(features['img'],tf.uint8)
 label=tf.cast(features['label'],tf.int32)
 roi=tf.cast(features['roi'],tf.float32)
 landmark=tf.cast(features['landmark'],tf.float32)
-img = tf.reshape(img, [48,48,3])   
+img = tf.reshape(img, [12,12,3])   
 #     img=img_preprocess(img)
 min_after_dequeue = 10000
 batch_size = 64

@@ -60,4 +60,14 @@ def cal_accuracy(cls_prob,label):
     pred_picked = tf.gather(pred,picked)
     accuracy_op = tf.reduce_mean(tf.cast(tf.equal(label_picked,pred_picked),tf.float32))
     
-    return accuracy_op
+    idx=tf.where(tf.greater(label_picked,0))
+    label_picked_true = tf.gather(label_int,idx)
+    pred_picked_true = tf.gather(pred,idx)  
+    accuracy_true=tf.reduce_mean(tf.cast(tf.equal(label_picked_true,pred_picked_true),tf.float32))
+    
+    idx=tf.where(tf.equal(label_picked,0))
+    label_picked_false = tf.gather(label_int,idx)
+    pred_picked_false = tf.gather(pred,idx)  
+    accuracy_false=tf.reduce_mean(tf.cast(tf.equal(label_picked_false,pred_picked_false),tf.float32))    
+
+    return accuracy_op,accuracy_true,accuracy_false

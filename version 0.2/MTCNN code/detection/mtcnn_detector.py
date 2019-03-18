@@ -3,6 +3,9 @@
 @author: friedhelm
 
 """
+import sys
+sys.path.append("../")
+
 import numpy as np
 import cv2
 from core.tool import NMS
@@ -27,7 +30,24 @@ class MTCNN_Detector(object):
         
         
     def generate_box(self,score_box,bounding_box,img_size,scale,stride,threshold):
+        """
+        used for sliding window
+
+        Parameters:
+        ----------
+            score_box : numpy.array, shape(n,m,1 )
+            bounding_box : numpy.array, shape(n,m,4 )
+            img_size : numpy.array
+            scale : int
+            stride : int
+            threshold : int
+                
+        Returns:
+        -------
+            numpy.array 
         
+            generate_box
+        """               
         idx=np.where(score_box>threshold)
     
         if(idx[0].size==0):
@@ -47,19 +67,20 @@ class MTCNN_Detector(object):
     
     def pad(self,t_box,w,h):
         """
-        used for pad t_box that out of range
-        
-        input : t_box; wide,high of img
-        output: boundingbox after pad
-        
-        format of input  : 
-            t_box : [x1,y1,x2,y2] 
+        used for padding t_box that out of range
+
+        Parameters:
+        ----------
+            t_box : numpy.array,format [x1,y1,x2,y2] 
             w       : int
             h       : int
-            
-        format of output : 
-            t_box    : [x1,y1,x2,y2]
-        """  
+        
+        Returns:
+        -------
+            t_box : numpy.array,format [x1,y1,x2,y2] 
+        
+            pad
+        """         
         xl_idx=np.where((t_box[:,0]<0))[0]  
         t_box[xl_idx]=0
         
@@ -76,17 +97,18 @@ class MTCNN_Detector(object):
     
     def convert_to_square(self,box):
         """
-        used for convert box to square
+        used for converting box to square
+
+        Parameters:
+        ----------
+            box : numpy.array,format [x1,y1,x2,y2] 
         
-        input : boundingbox 
-        output: boundingbox
+        Returns:
+        -------
+            square_box : numpy.array,format [x1,y1,x2,y2] 
         
-        format of input  : 
-            box : -1*[x1,y1,x2,y2] 
-            
-        format of output : 
-            square_box : -1*[x1,y1,x2,y2]
-        """
+            pad
+        """             
         square_box=box.copy()
         
         h=box[:,3]-box[:,1]+1
@@ -105,19 +127,21 @@ class MTCNN_Detector(object):
     def calibrate_box(self,img,NMS_box,model_name="default"):
         """
         used for calibrating NMS_box
-        
-        input : boundingbox after nms, img
-        output: score , boundingbox after calibrate , landmark_box
-        
-        format of input  : 
-            NMS_box : -1*[x1,y1,x2,y2,score,offset_x1,offset_y1,offset_x2,offset_y2,5*(landmark_x,landmark_y)] 
-            img          : np.array()
+
+        Parameters:
+        ----------
+            img : numpy.array
+            NMS_box : numpy.array,format [x1,y1,x2,y2,score,offset_x1,offset_y1,offset_x2,offset_y2,5*(landmark_x,landmark_y)] 
+            model_name : str 
             
-        format of output : 
-            score_box    : list of score -1*[score]
-            net_box      : list of box   -1*[face_x1,face_x2,face_y1,face_y2]
-            landmark_box : list of box   -1*[5*(true_landmark_x,true_landmark_y)]
-        """
+        Returns:
+        -------
+            score_box : numpy.array, shape(n,1 )
+            net_box : numpy.array, shape(n,4 )
+            landmark_box : numpy.array, shape(n,10 )
+        
+            calibrate_box
+        """             
         landmark_box=np.array([])
         h,w,c=img.shape
         
@@ -144,10 +168,12 @@ class MTCNN_Detector(object):
        
         if(model_name=="Onet"):
             boxes=boxes[idx]
+            onet_box=np.vstack(net_box)
             score_box=boxes[:,4]
-            landmark_box=np.zeros((len(boxes),5,2))
+            landmark_box=np.zeros((boxes.shape[0],5,2))
+
             for i in range(5):
-                landmark_box[:,i,:]=(boxes[:,9+i*2]*(t_box[:,2]-t_box[:,0])+t_box[:,0],boxes[:,9+i*2+1]*(t_box[:,3]-t_box[:,1])+t_box[:,1])   
+                landmark_box[:,i,0],landmark_box[:,i,1]=(boxes[:,9+i*2]*(onet_box[:,2]-onet_box[:,0])+onet_box[:,0],boxes[:,9+i*2+1]*(onet_box[:,3]-onet_box[:,1])+onet_box[:,1])  
         else: 
             score_box=boxes[:,4][idx]
         
@@ -156,17 +182,22 @@ class MTCNN_Detector(object):
 
     def detect_Pnet(self,pnet_detector,img):
         """
-        input : detector , img
-        output: score_box , pnet_box , None
-        
-        format of input  :
-            detector: class detector 
-            img     : np.array()
+        used for detect_Pnet 
+
+        Parameters:
+        ----------
+            img : numpy.array
+            pnet_detector : class detector 
+
             
-        format of output : 
-            score_box : list of score                  -1*[score]
-            pnet_box  : np.array() of box after calibration  -1*[p_face_x1,p_face_x2,p_face_y1,p_face_y2]
-        """        
+        Returns:
+        -------
+            score_box : numpy.array, shape(n,1 )
+            pnet_box : numpy.array, shape(n,4 )
+            []
+        
+            detect_Pnet
+        """                
         factor=self.factor
         pro=12/self.min_face_size
         scales=[]
@@ -177,7 +208,7 @@ class MTCNN_Detector(object):
             scales.append(pro)
             pro*=factor
             small*=factor 
-            
+        p=0    
         for scale in scales:
             
             crop_img=img
@@ -187,17 +218,22 @@ class MTCNN_Detector(object):
             score_boxes,delta_boxes,_=pnet_detector.predict(scale_img1)
             
             bounding_boxes=self.generate_box(score_box=score_boxes[:,:,1],bounding_box=delta_boxes,img_size=12,scale=scale,stride=2,threshold=self.threshold[0])
-
+                        
+            a=time.time()
             if(len(bounding_boxes)!=0):
                 idx=NMS(bounding_boxes[:,0:5],0.5)
                 NMS_bounding_boxes=bounding_boxes[idx]
                 total_box.append(NMS_bounding_boxes) 
-
+            p+=time.time()-a
+        a=time.time()
+        if(len(total_box)==0):
+            return [],[],[]
         total_box=np.vstack(total_box)
         idx=NMS(total_box,0.7)
-        NMS_box=total_box[idx]       
-        if(len(NMS_box)==0):
-            return [],[],[]
+        NMS_box=total_box[idx] 
+        p+=time.time()-a
+        #print("NMS: ",p)
+
 
         score_box,pnet_box,_=self.calibrate_box(img,NMS_box)
             
@@ -206,18 +242,22 @@ class MTCNN_Detector(object):
 
     def detect_Rnet(self,rnet_detector,img,bounding_box):
         """
-        input : detector , img , bounding_box
-        output: score_box , rnet_box , None
-        
-        format of input  :
-            detector     : class detector 
-            img          : np.array()
-            bounding_box : list of box output from function(detect_Pnet)  -1*[p_face_x1,p_face_x2,p_face_y1,p_face_y2]
+        used for detect_Rnet 
+
+        Parameters:
+        ----------
+            img : numpy.array
+            rnet_detector : class detector 
+            bounding_box : numpy.array, shape(n,4 )
             
-        format of output : 
-            score_box : list of score                  -1*[score]
-            rnet_box  : list of box after calibration  -1*[r_face_x1,r_face_x2,r_face_y1,r_face_y2]
-        """               
+        Returns:
+        -------
+            score_box : numpy.array, shape(n,1 )
+            pnet_box : numpy.array, shape(n,4 )
+            []
+        
+            detect_Rnet
+        """                  
         scale_img=np.zeros((len(bounding_box),24,24,3))
         for idx,box in enumerate(bounding_box):
             scale_img[idx,:,:,:] = cv2.resize(img[int(box[1]):int(box[3]),int(box[0]):int(box[2]),:], (24, 24))
@@ -246,35 +286,38 @@ class MTCNN_Detector(object):
     
     def detect_Onet(self,onet_detector,img,bounding_box):
         """
-        input : detector , img , bounding_box
-        output: score_box , onet_box , landmark_box
-        
-        format of input  :
-            detector     : class detector 
-            img          : np.array()
-            bounding_box : list of box output from function(detect_Rnet)  -1*[r_face_x1,r_face_x2,r_face_y1,r_face_y2]
+        used for detect_Onet 
+
+        Parameters:
+        ----------
+            img : numpy.array
+            onet_detector : class detector 
+            bounding_box : numpy.array, shape(n,4 )
             
-        format of output : 
-            score_box    : list of score                  -1*[score]
-            onet_box     : list of box after calibration  -1*[o_face_x1,o_face_x2,o_face_y1,o_face_y2]
-            landmark_box : list of landmark               -1*[5*(o_landmark_x,o_landmark_y)]
-        """              
+        Returns:
+        -------
+            score_box : numpy.array, shape(n,1 )
+            pnet_box : numpy.array, shape(n,4 )
+            landmark_box : numpy.array, shape(n,10 )
+        
+            detect_Onet
+        """           
         scale_img=np.zeros((len(bounding_box),48,48,3))    
         for idx,box in enumerate(bounding_box):
             scale_img[idx,:,:,:] = cv2.resize(img[int(box[1]):int(box[3]),int(box[0]):int(box[2]),:], (48, 48))
             
-        score_boxes,delta_boxes,landmark_boxes=onet_detector.predict(scale_imgthreshold=self.threshold[2])
-        
+        score_boxes,delta_boxes,landmark_boxes=onet_detector.predict(scale_img)
         idx=np.where(score_boxes[:,1]>self.threshold[1])[0] 
-        
+     
         if(len(idx)==0):
             return [],[],[]        
         delta_boxes=delta_boxes[idx]
         bounding_box=bounding_box[idx]
-        bounding_box[:,4]=score_boxes[idx,1]
+        score_boxes=np.expand_dims(score_boxes[idx,1],1)
+        bounding_box=np.hstack([bounding_box,score_boxes])
         landmark_boxes=landmark_boxes[idx]
-        
-        idx=NMS(bounding_box,0.6)                    
+          
+        idx=NMS(bounding_box,0.6,"Minimum")                    
         bounding_box=bounding_box[idx]  
         delta_boxes=delta_boxes[idx]       
         landmark_boxes=landmark_boxes[idx]        
@@ -286,20 +329,21 @@ class MTCNN_Detector(object):
         return score_box,onet_box,landmark_box   
     
     
-    def detect_face(self,images):    
+    def detect_face(self,images): 
         """
-        used for detecting face in both batch images and single image
-        
-        input : images 
-        output: face_boxes , landmark_boxes
-        
-        format of input  :
-            img          : np.array() batch_size*single_img
-            
-        format of output : 
+        used for detecting face in both batch images and single image 
+
+        Parameters:
+        ----------
+            img : numpy.array, format[batch_size,img]
+
+        Returns:
+        -------
             face_boxes     : list of face_box      batch_size*[face_x1,face_x2,face_y1,face_y2]
             landmark_boxes : list of landmark_box  batch_size*[5*(landmark_x,landmark_y)]
-        """
+        
+            detect_face
+        """             
         sign=False 
         bounding_box=[]
         landmark_box=[]
@@ -319,7 +363,9 @@ class MTCNN_Detector(object):
                 face_boxes.append([])
                 landmark_boxes.append([])     
                 continue
-            
+                
+            img=(img-127.5)/128
+
             if self.pnet_model:
                 pt=time.time()
                 score_box,bounding_box,landmark_box=self.detect_Pnet(self.pnet_detector,img)
@@ -360,20 +406,21 @@ class MTCNN_Detector(object):
             return face_boxes,landmark_boxes
     
     
-    def detect_single_face(self,img):    
+    def detect_single_face(self,img,print_time=True):   
         """
-        used for detecting single face or vidio
-        
-        input : images 
-        output: bounding_box , landmark_box
-        
-        format of input  :
-            img          : np.array() 
-            
-        format of output : 
+        used for detecting single face or vidioe 
+
+        Parameters:
+        ----------
+            img : numpy.array, format[batch_size,img]
+
+        Returns:
+        -------
             bounding_box : list of box  [face_x1,face_x2,face_y1,face_y2]
             landmark_box : list of box  [5*(landmark_x,landmark_y)]
-        """    
+        
+            detect_single_face
+        """              
         bounding_box=[]
         landmark_box=[]     
         detect_begin=time.time()
@@ -384,23 +431,24 @@ class MTCNN_Detector(object):
         img=(img-127.5)/128
         
         if self.pnet_model:
-            score_box,bounding_box,landmark_box=self.detect_Pnet(self.pnet_detector,img)
+            score_box,bounding_box,_=self.detect_Pnet(self.pnet_detector,img)
             
             if(len(bounding_box)==0):
                 return [],[]
 
         if self.rnet_model:              
-            score_box,bounding_box,landmark_box=self.detect_Rnet(self.rnet_detector,img,bounding_box)
+            score_box,bounding_box,_=self.detect_Rnet(self.rnet_detector,img,bounding_box)
             
             if(len(bounding_box)==0):
                 return [],[]
             
-        if self.onet_model:           
+        if self.onet_model:
             score_box,bounding_box,landmark_box=self.detect_Onet(self.onet_detector,img,bounding_box)
           
             if(len(bounding_box)==0):
                 return [],[]
         
-        print("detect-time: ",time.time()-detect_begin)
+        if print_time:
+            print("detect-time: ",time.time()-detect_begin)
             
         return bounding_box,landmark_box

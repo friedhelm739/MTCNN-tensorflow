@@ -15,16 +15,17 @@ def main():
     for index,term in enumerate(terms):
         num=0
         print("%s start"%(term))
-        with tf.python_io.TFRecordWriter(os.path.join(base_dir,"DATA\\%d\\%s_train.tfrecords"%(img_size,term))) as writer:
-            with open(os.path.join(base_dir,"DATA\%d\%s.txt"%(img_size,term))) as readlines:
+        tfr_addr=os.path.join(base_dir,"DATA/%d/%s_train.tfrecords"%(img_size,term))
+        with tf.python_io.TFRecordWriter(tfr_addr) as writer:
+            file_addr=os.path.join(base_dir,"DATA/%d/%s.txt"%(img_size,term))
+            with open(file_addr) as readlines:
                 readlines=[line.strip().split(' ') for line in readlines]
                 random.shuffle(readlines)
                 for i,line in enumerate(readlines):
-                    if(i%10000==0):
+                    if(num%10000==0):
                         print(i,time.time()-t_time)
                         t_time=time.time()
-                    #if windows
-                    img=cv2.imread(line[0].replace('/','\\'))
+                    img=cv2.imread(line[0])
                     if(img is None):
                         continue
                     img_raw = img.tobytes()
@@ -49,13 +50,13 @@ def main():
 
 if __name__=="__main__":
     
-    img_size=48
+    img_size=12
     #change img_size to P=12 R=24 O=48 net
     terms=['neg_%d'%(img_size),'pos_%d'%(img_size),'par_%d'%(img_size),'land_%d'%(img_size)]
     scale=[3,1,1,2]
     
-    base_dir="E:\\friedhelm\\object\\face_detection_MTCNN"
-    
+    base_dir="/home/dell/Desktop/prepared_data"
+
     #set base number of pos_pic    
     base=200000
 
@@ -64,11 +65,3 @@ if __name__=="__main__":
     main()
     
     print(time.time()-begin)
-
-#Pnet train_data               
-#neg 645017
-#par 507206
-#pos 285560 
-#land 584332
-    
-#Rnet train_data neg_pics 758503 in total,pos_pics 285017 in total,par_pics 572771 in total

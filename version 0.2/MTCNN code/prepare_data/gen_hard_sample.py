@@ -3,6 +3,9 @@
 @author: friedhelm
 
 """
+import sys
+sys.path.append("../")
+
 from detection.mtcnn_detector import MTCNN_Detector
 from core.MTCNN_model import Pnet_model,Rnet_model,Onet_model
 from core.tool import IoU
@@ -47,8 +50,8 @@ def main():
                 boxes.append(b)
                 # format of boxes is [x,y,w,h]
                 if(p==0):
-                    
-                    img=cv2.imread(os.path.join(WIDER_dir,pic_dir).replace('/','\\'))
+
+                    img=cv2.imread(os.path.join(WIDER_dir,pic_dir))
 
                     face_box,_=detector.detect_single_face(img)
                     neg_num=0
@@ -85,7 +88,6 @@ def main():
                                 cv2.imwrite(os.path.join(par_dir,'par_%d.jpg'%(par_idx)),resized_img)
                                 f3.write(os.path.join(par_dir,'par_%d.jpg'%(par_idx)) + ' -1 %.2f %.2f %.2f %.2f\n'%(offset_x1,offset_y1,offset_x2,offset_y2))                           
                                 par_idx=par_idx+1
-                    print(time.time()-begin)
                     idx+=1
                     if(idx%100==0):
                         print('idx: ',idx," ;neg_idx: ",neg_idx," ;pos_idx: ",pos_idx," ;par_idx: ",par_idx)
@@ -95,7 +97,7 @@ def main():
 if __name__=="__main__":
     
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"   
-    base_dir="E:\\friedhelm\\object\\face_detection_MTCNN"
+    base_dir="/home/dell/Desktop/prepared_data"
     #可修改参数
     threshold=[0.8,0.8,0.6]
     min_face_size=10
@@ -103,23 +105,22 @@ if __name__=="__main__":
     #可修改参数
     batch_size=1
     img_size=24
-    model_name="Rnet"    
+    model_name="Pnet"    
     
-    model_path=[os.path.join(base_dir,"Pnet_model\\Pnet_model.ckpt-60000"),
-                os.path.join(base_dir,"Rnet_model\\Rnet_model.ckpt-40000"),
-                os.path.join(base_dir,"Onet_model\\Onet_model_60000.ckpt")] 
+    model_path=[os.path.join(base_dir,"model/Pnet_model/Pnet_model.ckpt-20000"),
+                None,
+                None] 
     #可修改参数
     
     factor=0.79
     model=[None,None,None]
     
-    
-    WIDER_dir=os.path.join(base_dir,"prepare_data\\WIDER_train\\images")
-    WIDER_spilt_dir=os.path.join(base_dir,"prepare_data\\wider_face_split\\wider_face_train_bbx_gt.txt")
-    negative_dir=os.path.join(base_dir,"DATA\\%d\\negative"%(img_size))
-    positive_dir=os.path.join(base_dir,"DATA\\%d\\positive"%(img_size))
-    par_dir=os.path.join(base_dir,"DATA\\%d\\part"%(img_size))
-    save_dir=os.path.join(base_dir,"DATA\\%d"%(img_size))
+    WIDER_dir=os.path.join(base_dir,"WIDER_train/images")
+    WIDER_spilt_dir=os.path.join(base_dir,"wider_face_split/wider_face_train_bbx_gt.txt")
+    negative_dir=os.path.join(base_dir,"DATA/%d/negative"%(img_size))
+    positive_dir=os.path.join(base_dir,"DATA/%d/positive"%(img_size))
+    par_dir=os.path.join(base_dir,"DATA/%d/part"%(img_size))
+    save_dir=os.path.join(base_dir,"DATA/%d"%(img_size))
     
     if not os.path.exists(positive_dir):
         os.makedirs(positive_dir)
@@ -140,4 +141,4 @@ if __name__=="__main__":
     f2.close()
     f3.close()      
 
-    print(time.time()-begin )    
+    print(time.time()-begin)    

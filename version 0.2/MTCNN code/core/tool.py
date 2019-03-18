@@ -44,7 +44,7 @@ def IoU(box, boxes):
     return ovr
 
 
-def NMS(box,_overlap):
+def NMS(box,_overlap,mode="default"):
     
     if len(box) == 0:
         return []
@@ -71,8 +71,13 @@ def NMS(box,_overlap):
         w = np.maximum(xx2-xx1,0)
         h = np.maximum(yy2-yy1,0)
 
-        overlap = (w*h)/(area[idxs[1:]] + area[i] - w*h)
-
+        square=w*h
+        
+        if(mode != "Minimum"):
+            overlap = square / (area[idxs[1:]] + area[i] - square)
+        else:
+            overlap = square / np.minimum(area[idxs[1:]] , area[i])
+            
         idxs = idxs[np.where(overlap < _overlap)[0]+1]
     
     return pick

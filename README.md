@@ -11,21 +11,23 @@
 
 ## 环境依赖
 
+version0.1:
+
 * Window10+GTX 1060+Python3.6+Anaconda5.2.0+Spyder+Tensorflow1.9-gpu
 
+version0.2:
+
+* ubuntu16.04+GTX 1080ti+Python3.6+Anaconda5.2.0+Tensorflow1.8-gpu
+
 ## 结果
+
+>以下图片皆来源于网络，如有侵权，请联系本人删除。
+
+![](result/MTCNN_test_0.jpg)
 
 ![](result/MTCNN_test_1.jpg)
 
 ![](result/MTCNN_test_2.jpg)
-
-![](result/MTCNN_test_3.jpg)
-
-![](result/MTCNN_test_4.jpg)
-
-![](result/MTCNN_test_5.jpg)
-
-![](result/MTCNN_test_6.jpg)
 
 ## 总结
 

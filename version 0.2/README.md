@@ -1,12 +1,16 @@
 # version 0.2更新文档
 
-
 ## 更新原因
 
-* 1、采用矩阵算法加速预测后运算速度，更新后提高约为version0.1的6倍速度；
-* 2、引入若干函数，增强MTCNN鲁棒性；
-* 3、修复linux下路径报错bug、修复landmark镜像后关键点计算错误的bug、修复fc正则化的bug；
+* 1、加速MTCNN运行速度；
+* 2、修补若干致命bug；
+* 3、增强MTCNN鲁棒性；
 
+## 更新概要
+
+* 1、废除滑窗法；
+* 2、MTCNN_detector下引入convert_to_square、pad、generate_box函数，加速且增强MTCNN鲁棒性；
+* 3、修复linux下路径报错bug、修复landmark镜像bug、关键点计算错误bug、修复fc正则化bug；
 
 ## 更新细节
 
@@ -22,3 +26,13 @@
 * 10、在MTCNN_detector初始化时初始化Detector；
 * 11、修复关键点镜像计算错误的bug；
 * 12、修复fc正则化loss图加载错误的bug；
+
+## 更新结果
+
+* 1、MTCNN 平均预测时间提高约6倍以上；
+* 2、对困难样本鲁棒性提升，landmark预测效果提升；
+
+## 未来更新
+
+* 1、修复Detector中，Rnet与Onet对未知batch的鲁棒性；
+* 2、进一步提升MTCNN运行速度，提升准确性；
