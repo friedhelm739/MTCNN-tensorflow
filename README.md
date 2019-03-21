@@ -6,7 +6,7 @@
 
 * https://github.com/kpzhang93/MTCNN_face_detection_alignment
 * https://github.com/CongWeilin/mtcnn-caffe
-* [https://github.com/Seanlinx/mtcnn
+* https://github.com/Seanlinx/mtcnn
 * https://github.com/AITTSMD/MTCNN-Tensorflow
 
 ## 环境依赖
