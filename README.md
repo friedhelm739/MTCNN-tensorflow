@@ -38,4 +38,4 @@ version0.2:
 
 ## 其他
 
-我的[CSDN博客](https://blog.csdn.net/Rrui7739/article/details/82084022)上有详细的说明，欢迎大家指教~
+我的[CSDN博客](https://blog.csdn.net/Rrui7739/article/details/82084022)上有version 0.1的详细说明，欢迎大家指教~
