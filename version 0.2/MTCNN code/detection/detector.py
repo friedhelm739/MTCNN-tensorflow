@@ -20,7 +20,9 @@ class Detector(object):
                 
             graph=tf.Graph()
             with graph.as_default():
-                self.sess=tf.Session()
+                config = tf.ConfigProto(allow_soft_placement=True)  
+                config.gpu_options.allow_growth = True 
+                self.sess=tf.Session(config = config)
                 self.images=tf.placeholder(tf.float32)
                 self.label,self.roi,self.landmark=model(self.images,batch_size) 
                 saver=tf.train.Saver()
@@ -38,11 +40,11 @@ class Detector(object):
         Returns:
         -------
         pre_label: numpy.array, shape (n,m,2 )
-        pre_box: numpy.array, shape (n,m, 4)        
+        pre_box: numpy.array, shape (n,m, 4 )        
         pre_land: numpy.array, shape (n,m,10 )
         
             predict
-        """     
+        """   
         pre_land=np.array([0])
         if(self.model_name=="Onet"):
             pre_label,pre_box,pre_land=self.sess.run([self.label,self.roi,self.landmark],feed_dict={self.images:img})

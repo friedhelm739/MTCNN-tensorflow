@@ -13,6 +13,17 @@ from numpy.random import randint
 import cv2
 import os
 import time
+import argparse
+
+def arg_parse():
+    
+    parser=argparse.ArgumentParser()
+    
+    parser.add_argument("--img_size",default=12,type=int, help='img size to generate')
+    parser.add_argument("--base_dir",default="../",type=str, help='base path to save TFRecord file')
+    
+    return parser
+
 
 def main():
     
@@ -102,16 +113,18 @@ def main():
 
 if __name__=="__main__":
 
-    img_size=12
-    
-    #change img_size to P=12 R=24 O=48 net
+    parser=arg_parse()
+    base_dir=parser.base_dir
+    img_size=parser.img_size
     
     begin=time.time()
     
-    base_dir="/home/dell/Desktop/prepared_data"
+    #change img_size to P=12 R=24 O=48 net
+    #img_size=12
+    #base_dir="/home/dell/Desktop/MTCNN"
     
-    lfw_dir=os.path.join(base_dir,"train")
-    pic_spilt_dir=os.path.join(base_dir,"train/trainImageList.txt")
+    lfw_dir=os.path.join(base_dir,"prepared_data/train")
+    pic_spilt_dir=os.path.join(base_dir,"prepared_data/train/trainImageList.txt")
     landmark_dir=os.path.join(base_dir,"DATA/%d/landmark"%(img_size))
     save_dir=os.path.join(base_dir,"DATA/%d"%(img_size))  
 

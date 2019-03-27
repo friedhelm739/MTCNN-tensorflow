@@ -12,6 +12,22 @@ from core.tool import read_multi_tfrecords,image_color_distort
 from core.MTCNN_model import Pnet_model,Rnet_model,Onet_model
 from train.train_tool import label_los,roi_los,landmark_los,cal_accuracy
 import os
+import argparse
+
+def arg_parse():
+    
+    parser=argparse.ArgumentParser()
+    
+    parser.add_argument("--img_size",default=12,type=int, help='img size to generate')
+    parser.add_argument("--base_dir",default="../",type=str, help='base path to save TFRecord file')
+    parser.add_argument("--batch_size",default=[192,64,64,128],type=list, help='batch size list of each tfrecord')
+    parser.add_argument("--batch",default=448,type=int, help='total batch')
+    parser.add_argument("--train_step",default=50001,type=int, help='train steps')
+    parser.add_argument("--learning_rate",default=0.001,type=float, help='learning rate')
+    parser.add_argument("--model_name",default="Pnet_model",type=str, help='from which model to generate data')   
+    
+    return parser
+
 
 def train(image,label,roi,landmark,model,model_name):
     
@@ -97,21 +113,28 @@ def main(model):
     train(image,label,roi,landmark,model,model_name)
 
 if __name__=='__main__':
+
+    parser=arg_parse()
+    base_dir=parser.base_dir
+    img_size=parser.img_size    
+    batch_size=parser.batch_size 
+    batch=parser.batch 
+    train_step=parser.train_step    
+    learning_rate=parser.learning_rate 
+    model_name=parser.model_name  
     
-    base_dir="/home/dell/Desktop/prepared_data"
-    img_size=48
-    batch=448
-    batch_size=[192,64,64,128]
+    #base_dir="/home/dell/Desktop/prepared_data"
+    #img_size=48
+    #batch=448
+    #batch_size=[192,64,64,128]
+    #model_name="Onet_model"    
+    #train_step=100001
+    #learning_rate=0.001
     
     addr=[os.path.join(base_dir,"DATA/%d/neg_%d_train.tfrecords"%(img_size,img_size)),
           os.path.join(base_dir,"DATA/%d/pos_%d_train.tfrecords"%(img_size,img_size)),
           os.path.join(base_dir,"DATA/%d/par_%d_train.tfrecords"%(img_size,img_size)),
           os.path.join(base_dir,"DATA/%d/land_%d_train.tfrecords"%(img_size,img_size))]  
-
-    model=Onet_model
-    model_name="Onet_model"    
-    train_step=100001
-    learning_rate=0.001
     
     save_model_path=os.path.join(base_dir,"model/%s"%(model_name))
     
@@ -120,9 +143,12 @@ if __name__=='__main__':
         
     if(model_name=="Onet_model"):
         ratio=[1,0.5,1]
+        model=Onet_model
     else:
         ratio=[1,0.5,0.5]
-    
+        if(model_name=="Rnet_model"):
+            model=Rnet_model
+        else: model=Pnet_model
 
     begin=time.time()        
     main(model)

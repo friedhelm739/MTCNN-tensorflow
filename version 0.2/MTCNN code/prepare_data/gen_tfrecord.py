@@ -8,6 +8,18 @@ import cv2
 import random
 import time
 import os
+import argparse
+
+def arg_parse():
+    
+    parser=argparse.ArgumentParser()
+    
+    parser.add_argument("--img_size",default=12 , type=int, help='img size to generate')
+    parser.add_argument("--base_dir",default="../" , type=str, help='base path to save TFRecord file')
+    parser.add_argument("--base_num",default=200000 , type=int, help='base num img  to generate')
+    
+    return parser
+
 
 def main():
     
@@ -50,15 +62,18 @@ def main():
 
 if __name__=="__main__":
     
-    img_size=12
-    #change img_size to P=12 R=24 O=48 net
+    parser=arg_parse()
+    base_dir=parser.base_dir
+    img_size=parser.img_size
+    base=parser.base_num
+
     terms=['neg_%d'%(img_size),'pos_%d'%(img_size),'par_%d'%(img_size),'land_%d'%(img_size)]
     scale=[3,1,1,2]
     
-    base_dir="/home/dell/Desktop/prepared_data"
-
     #set base number of pos_pic    
-    base=200000
+    #base=200000    
+    #img_size=12    
+    #base_dir="/home/dell/Desktop/MTCNN"
 
     begin=time.time()
 

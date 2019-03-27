@@ -13,6 +13,22 @@ import cv2
 import numpy as np
 import os
 import time
+import argparse
+
+def arg_parse():
+    
+    parser=argparse.ArgumentParser()
+    
+    parser.add_argument("--img_size",default=12,type=int, help='img size to generate')
+    parser.add_argument("--base_dir",default="../",type=str, help='base path to save TFRecord file')
+    parser.add_argument("--threshold",default=[0.8,0.8,0.6],type=list, help='threshold of models')
+    parser.add_argument("--min_face_size",default=10,type=int, help='min face size')
+    parser.add_argument("--factor",default=0.79,type=int, help='factor of img')
+    parser.add_argument("--model_path",type=list, help='model path')
+    parser.add_argument("--model_name",default="Pnet",type=str, help='from which model to generate data')   
+    
+    return parser
+
 
 def main():
     
@@ -97,26 +113,33 @@ def main():
 if __name__=="__main__":
     
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"   
-    base_dir="/home/dell/Desktop/prepared_data"
-    #可修改参数
-    threshold=[0.8,0.8,0.6]
-    min_face_size=10
     
-    #可修改参数
+    parser=arg_parse()
+    base_dir=parser.base_dir
+    img_size=parser.img_size    
+    threshold=parser.threshold 
+    min_face_size=parser.min_face_size 
+    factor=parser.factor    
+    model_name=parser.model_name 
+    model_path=parser.model_path     
+      
+    #parameters to modify
+    #threshold=[0.8,0.8,0.6]
+    #min_face_size=10
+    #base=200000    
+    #img_size=12    
+    #base_dir="/home/dell/Desktop/MTCNN"
+    #factor=0.79      
+    #model_name="Pnet"
+    #model_path=[os.path.join(base_dir,"model/Pnet_model/Pnet_model.ckpt-20000"),
+    #            None,
+    #            None] 
+    #parameters to modify
     batch_size=1
-    img_size=24
-    model_name="Pnet"    
-    
-    model_path=[os.path.join(base_dir,"model/Pnet_model/Pnet_model.ckpt-20000"),
-                None,
-                None] 
-    #可修改参数
-    
-    factor=0.79
     model=[None,None,None]
     
-    WIDER_dir=os.path.join(base_dir,"WIDER_train/images")
-    WIDER_spilt_dir=os.path.join(base_dir,"wider_face_split/wider_face_train_bbx_gt.txt")
+    WIDER_dir=os.path.join(base_dir,"prepared_data/WIDER_train/images")
+    WIDER_spilt_dir=os.path.join(base_dir,"prepared_data/wider_face_split/wider_face_train_bbx_gt.txt")
     negative_dir=os.path.join(base_dir,"DATA/%d/negative"%(img_size))
     positive_dir=os.path.join(base_dir,"DATA/%d/positive"%(img_size))
     par_dir=os.path.join(base_dir,"DATA/%d/part"%(img_size))
