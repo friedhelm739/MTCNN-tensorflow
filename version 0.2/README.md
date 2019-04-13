@@ -26,6 +26,7 @@
 * 10、在MTCNN_detector初始化时初始化Detector；
 * 11、修复关键点镜像计算错误的bug；
 * 12、修复fc正则化loss图加载错误的bug；
+* 13、修复Detector中，Rnet与Onet对未知batch的鲁棒性；
 
 ## 更新结果
 
@@ -34,5 +35,4 @@
 
 ## 未来更新
 
-* 1、修复Detector中，Rnet与Onet对未知batch的鲁棒性；
-* 2、进一步提升MTCNN运行速度，提升准确性；
+* 1、进一步提升MTCNN运行速度，提升准确性；
