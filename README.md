@@ -1,6 +1,6 @@
 # MTCNN-tensorflow
 
-* version 0.1稳定，version 0.2稳定，version 0.3更新中；
+* version 1.0稳定，version 2.0稳定，version 2.1更新中；
 
 复现[Joint Face Detection and Alignment Using Multitask Cascaded Convolutional Networks](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7553523)论文，参考了众多复现代码，在此附上链接并对表示感谢~
 
@@ -11,11 +11,11 @@
 
 ## 环境依赖
 
-version0.1:
+version1.0:
 
 * Window10+GTX 1060+Python3.6+Anaconda5.2.0+Spyder+Tensorflow1.9-gpu
 
-version0.2:
+version2.0:
 
 * ubuntu16.04+GTX 1080ti+Python3.6+Anaconda5.2.0+Tensorflow1.8-gpu
 
@@ -37,4 +37,4 @@ version0.2:
 
 ## 其他
 
-我的[CSDN博客](https://blog.csdn.net/Rrui7739/article/details/82084022)上有version 0.1的详细说明，欢迎大家指教~
+我的[CSDN博客](https://blog.csdn.net/Rrui7739/article/details/82084022)上有version 1.0的详细说明，欢迎大家指教~

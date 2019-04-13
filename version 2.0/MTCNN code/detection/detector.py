@@ -9,7 +9,7 @@ import os
 
 class Detector(object):
     
-    def __init__(self, model, model_path, model_name, batch_size, size_to_predict=1024):
+    def __init__(self, model, model_path, model_name, batch_size, size_to_predict=128):
         
         if(model_path):
             self.model_name = model_name
@@ -28,12 +28,12 @@ class Detector(object):
                 config.gpu_options.allow_growth = True 
                 self.sess = tf.Session(config = config)
                 self.images = tf.placeholder(tf.float32)
-                self.label, self.roi, self.landmark = model(self.images,self.size_to_predict) 
+                self.label, self.roi, self.landmark = model(self.images,batch_size) 
                 saver = tf.train.Saver()
                 saver.restore(self.sess,model_path)
      
         self.size_to_predict = size_to_predict
-        self.batch_size = batch_size
+
     def predict(self, img):
         """
         used for predict
@@ -53,8 +53,10 @@ class Detector(object):
         pre_labels = []
         pre_boxs = []
         pre_lands = []
-        batch_num = self.batch_size/self.size_to_predict
-        left = self.batch_size%self.size_to_predict
+        self.batch_size = img.shape[0]
+
+        batch_num = self.batch_size // self.size_to_predict
+        left = self.batch_size % self.size_to_predict
             
         if(self.model_name == "Pnet"):
             pre_labels, pre_boxs = self.sess.run([self.label, self.roi], feed_dict={self.images:img})
